@@ -1,0 +1,1 @@
+#Initial makefile for gc controller - used for testing controller in stand alone format

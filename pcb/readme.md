@@ -1,0 +1,1 @@
+This folder contains the source kicad project files for the NinPortable
