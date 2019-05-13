@@ -5,7 +5,8 @@ RISCV_GNU_TOOLCHAIN_GIT_REVISION = c3ad555
 RISCV_GNU_TOOLCHAIN_INSTALL_PREFIX = /opt/riscv32
 FIRMWARE_OBJS = fw/start.o fw/irq.o fw/print.o fw/main.o
 PICORV32 = $(PICORV32_PATH)/picorv32.v
-TESTBENCH = hdl/tb/testbench.v
+TESTBENCH = hw/tb/testbench.v
+TESTBENCHVERI= hw/tb/testbench.cc
 GCC_WARNS  = -Werror -Wall -Wextra -Wshadow -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings
 GCC_WARNS += -Wredundant-decls -Wstrict-prototypes -Wmissing-prototypes -pedantic # -Wconversion
 TOOLCHAIN_PREFIX = $(RISCV_GNU_TOOLCHAIN_INSTALL_PREFIX)i/bin/riscv32-unknown-elf-
@@ -17,6 +18,15 @@ test: testbench.vvp fw/firmware.hex
 
 test_vcd: testbench.vvp fw/firmware.hex
 	vvp -N $< +vcd +trace +noerror
+
+test_verilator: testbench_verilator fw/firmware.hex
+	./testbench_verilator
+
+testbench_verilator: $(TESTBENCH) $(PICORV32) $(TESTBENCHVERI)
+	verilator --cc --exe -Wno-lint -trace --top-module picorv32_wrapper $(TESTBENCH) $(PICORV32) $(TESTBENCHVERI) \
+			$(subst C,-DCOMPRESSED_ISA,$(COMPRESSED_ISA)) --Mdir testbench_verilator_dir
+	$(MAKE) -C testbench_verilator_dir -f Vpicorv32_wrapper.mk
+	cp testbench_verilator_dir/Vpicorv32_wrapper testbench_verilator
 
 testbench.vvp: $(TESTBENCH) $(PICORV32)
 	iverilog -o $@ $(subst C,-DCOMPRESSED_ISA,$(COMPRESSED_ISA)) $^
@@ -47,9 +57,10 @@ download:
 		cd picorv32; git checkout b7e82dfcd1346c3b3fd7ac3ebd647907fc9ce06c;'
 
 clean:
-	rm -rf $(FIRMWARE_OBJS)
-	rm -rf fw/firmware.elf fw/firmware.bin fw/firmware.hex fw/firmware.map
-	rm -rf *.vvp *.vcd *.trace
+	rm -vrf $(FIRMWARE_OBJS)
+	rm -vrf fw/firmware.elf fw/firmware.bin fw/firmware.hex fw/firmware.map
+	rm -vrf *.vvp *.vcd *.trace
+	rm -vrf testbench_verilator testbench_verilator_dir
 	#sudo bash -c 'rm -r $(PICORV32_PATH)'
 
 .PHONY: download clean
