@@ -1,14 +1,26 @@
 #Initial makefile - nothing to see here
 
+PICORV32_PATH = ../picorv32
 RISCV_GNU_TOOLCHAIN_GIT_REVISION = c3ad555
 RISCV_GNU_TOOLCHAIN_INSTALL_PREFIX = /opt/riscv32
 FIRMWARE_OBJS = fw/start.o fw/irq.o fw/print.o fw/main.o
+PICORV32 = $(PICORV32_PATH)/picorv32.v
+TESTBENCH = hdl/tb/testbench.v
 GCC_WARNS  = -Werror -Wall -Wextra -Wshadow -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings
 GCC_WARNS += -Wredundant-decls -Wstrict-prototypes -Wmissing-prototypes -pedantic # -Wconversion
 TOOLCHAIN_PREFIX = $(RISCV_GNU_TOOLCHAIN_INSTALL_PREFIX)i/bin/riscv32-unknown-elf-
 COMPRESSED_ISA = C
-PICORV32_PATH = ../../picorv32
 
+
+test: testbench.vvp fw/firmware.hex
+	vvp -N $<
+
+test_vcd: testbench.vvp fw/firmware.hex
+	vvp -N $< +vcd +trace +noerror
+
+testbench.vvp: $(TESTBENCH) $(PICORV32)
+	iverilog -o $@ $(subst C,-DCOMPRESSED_ISA,$(COMPRESSED_ISA)) $^
+	chmod -x $@
 
 fw/firmware.hex: fw/firmware.bin $(PICORV32_PATH)/firmware/makehex.py
 	python3 $(PICORV32_PATH)/firmware/makehex.py $< 16384 > $@
@@ -19,7 +31,7 @@ fw/firmware.bin: fw/firmware.elf
 
 fw/firmware.elf: $(FIRMWARE_OBJS) fw/sections.lds
 	$(TOOLCHAIN_PREFIX)gcc -Os -ffreestanding -nostdlib -o $@ \
-		-Wl,-Bstatic,-T,firmware/sections.lds,-Map,firmware/firmware.map,--strip-debug \
+		-Wl,-Bstatic,-T,fw/sections.lds,-Map,fw/firmware.map,--strip-debug \
 		$(FIRMWARE_OBJS) -lgcc
 	chmod -x $@
 
@@ -31,10 +43,13 @@ fw/%.o: fw/%.c
 
 #This build is working with picorv32 revision from May 04, 2019
 download:
-	sudo bash -c 'cd ../..; git clone https://github.com/cliffordwolf/picorv32.git; \
+	sudo bash -c 'cd ..; git clone https://github.com/cliffordwolf/picorv32.git; \
 		cd picorv32; git checkout b7e82dfcd1346c3b3fd7ac3ebd647907fc9ce06c;'
 
 clean:
+	rm -rf $(FIRMWARE_OBJS)
+	rm -rf fw/firmware.elf fw/firmware.bin fw/firmware.hex fw/firmware.map
+	rm -rf *.vvp *.vcd *.trace
 	#sudo bash -c 'rm -r $(PICORV32_PATH)'
 
 .PHONY: download clean
