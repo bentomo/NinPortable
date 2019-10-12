@@ -1,1 +1,10 @@
-#initial gitignore file - nothing to see here
+#ignore these files
+/fw/firmware.bin
+/fw/firmware.elf
+/fw/firmware.hex
+/fw/firmware.map
+/fw/*.o
+/*.vvp
+/*.vcd
+/*.trace
+/testbench_verilator*
