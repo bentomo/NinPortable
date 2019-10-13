@@ -8,3 +8,4 @@
 /*.vcd
 /*.trace
 /testbench_verilator*
+/doc/.*

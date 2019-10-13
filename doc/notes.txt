@@ -1,10 +1,27 @@
-notes
+********************************************************************************************************************************************
+picorv32 notes
+********************************************************************************************************************************************
+notes for writing firmware on pico
+
+add rule to build .c file into .o then
+
+.o > .elf > .bin > .hex
+
+firmware file needs to be updated in testbench.v as well 
+
+********************************************************************************************************************************************
+********************************************************************************************************************************************
+Video notes from gcvideo and output from wii and gamecube
+********************************************************************************************************************************************
+
+From unseen on forums: https://shmups.system11.org/viewtopic.php?f=6&t=51450
 
 If you just want a black-and-white picture you could feed the eight digital video data lines into a single-channel video DAC clocked on the falling 54MHz edge following an edge on the CSel signal(*) and combining that with an external sync derived from the analog video port. Color is more complicated because there is only one color component (Cb or Cr) for each luma value and to derive the sync signals from the digital video port you need to decode the flag bits. It's probably doable with a sufficient number of 74xx discrete logic ICs, but with today's cheap and fast programmable logic chips the discrete solution is just unnecessarily complicated.
 
 CSEL has nothing to do with clock
 Although the gamesx.com wiki page calls it "Clock select", it does not tell anything about the currently active clock - instead it signals if the color sample following the luma sample is Cb or Cr. It's toggling frequency can also be used to detect if the Gamecube is outputting a 15kHz or 30kHz video signal.
 
+Color space conversion: http://www.picturetopeople.org/p2p/image_utilities.p2p/color_converter?color_space=RGB&color_channel1=64&color_channel2=50&color_channel3=97&ResultType=view
 gamecube indigo color hex is 0x645097 (YCBCR = 67,147,131)
 
 we are assuming csel is constant at first state
@@ -37,3 +54,5 @@ GCVideo Modules
 	 output pixelclk_en, videoYCbCr
 
 if vdata == 0x00 thn we are blanking and next cr and cb packets will be flags
+
+********************************************************************************************************************************************

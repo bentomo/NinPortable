@@ -1,4 +1,4 @@
-#Initial makefile - nothing to see here
+#Make file for project management
 
 PICORV32_PATH = ../picorv32
 RISCV_GNU_TOOLCHAIN_GIT_REVISION = c3ad555
@@ -55,6 +55,19 @@ fw/%.o: fw/%.c
 download:
 	sudo bash -c 'cd ..; git clone https://github.com/cliffordwolf/picorv32.git; \
 		cd picorv32; git checkout b7e82dfcd1346c3b3fd7ac3ebd647907fc9ce06c;'
+
+
+###############################################################################
+# Verification sections
+###############################################################################
+
+verify: verifyUART
+
+verifyUART:
+
+###############################################################################
+
+
 
 clean:
 	rm -vrf $(FIRMWARE_OBJS)
