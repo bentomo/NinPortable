@@ -246,7 +246,7 @@ module picorv32_wrapper #(
 	reg [1023:0] firmware_file;
 	initial begin
 		if (!$value$plusargs("firmware=%s", firmware_file))
-			firmware_file = "fw/firmware.hex";
+			firmware_file = "../fw/firmware.hex";
 		$readmemh(firmware_file, mem.memory);
 	end
 

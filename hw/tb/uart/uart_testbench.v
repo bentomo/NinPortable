@@ -24,13 +24,27 @@ IN THE SOFTWARE.
 
 */
 
+`default_nettype none
 `timescale 1 ns / 1 ps
+module uart_testbench();
 
-top_np (
-	input wire CLK,
-	input wire RST,
+top_np top_wrapper_zero (
+	.CLK (),
+	.RST (),
 
-	input wire SERIAL_RX,
-	output reg SERIAL_TX
+	.SERIAL_RX (),
+	.SERIAL_TX ()
 
 	);
+
+top_np top_wrapper_zero (
+	.CLK (),
+	.RST (),
+
+	.SERIAL_RX (),
+	.SERIAL_TX ()
+
+	);
+
+endmodule
+`default_nettype wire

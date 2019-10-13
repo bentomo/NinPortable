@@ -4,8 +4,8 @@
 /fw/firmware.hex
 /fw/firmware.map
 /fw/*.o
-/*.vvp
-/*.vcd
-/*.trace
-/testbench_verilator*
+/build/*.vvp
+/build/*.vcd
+/build/*.trace
+/build/testbench_verilator*
 /doc/.*
