@@ -1,5 +1,9 @@
 #Make file for project management
 
+
+TOP_WRAPPER = /hw/top/top_np.v
+
+
 PICORV32_PATH = ../picorv32
 RISCV_GNU_TOOLCHAIN_GIT_REVISION = c3ad555
 RISCV_GNU_TOOLCHAIN_INSTALL_PREFIX = /opt/riscv32
@@ -58,16 +62,26 @@ download:
 
 
 ###############################################################################
-# Verification sections
+# Verification section
 ###############################################################################
 
 verify: verifyUART
 
-verifyUART:
+verifyUART: $(TOP_WRAPPER)
+	verilator --cc --exe -Wno-lint -trace --top-module top_np $(TESTBENCH) $(PICORV32) $(TESTBENCHVERI) \
+			$(subst C,-DCOMPRESSED_ISA,$(COMPRESSED_ISA)) --Mdir testbench_verilator_dir
+	$(MAKE) -C testbench_verilator_dir -f Vpicorv32_wrapper.mk
+	cp testbench_verilator_dir/Vpicorv32_wrapper testbench_verilator
 
 ###############################################################################
 
+###############################################################################
+# build section - output usable binarys and fab files
+###############################################################################
 
+buildFPGA:
+
+###############################################################################
 
 clean:
 	rm -vrf $(FIRMWARE_OBJS)

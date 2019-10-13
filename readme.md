@@ -33,6 +33,10 @@ You can run a simple test with iverilog and verilator
 
 The project is very large so we will attempt to manage it with make
 
+###buildFPGA
+---
+This builds the bit stream and firmware to be loaded on to the FPGA
+
 ###Verification options
 ---
 When features and functions are added they are given a rule in make to verify function in some way. When they are added there is a master verfication rule that will verify all sub-verification steps.
@@ -44,7 +48,7 @@ This rule verifies all following verification rules
 
 ####verifyUART
 ---
-This rule instances two picorv32 that will send messages to eachother over a serial wire
+This rule instances two top_np designs that will send messages to eachother over a serial wire
 
 
 ##Overview
