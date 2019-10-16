@@ -35,7 +35,43 @@ module top_np(
 
 	);
 
-initial begin $display("Hello World"); $finish; end
+
+picosoc cpu (
+	.clk (),
+	.resetn (),
+
+	.iomem_valid (),
+	.iomem_ready (),
+	.iomem_wstrb (),
+	.iomem_addr (),
+	.iomem_wdata (),
+	.iomem_rdata (),
+
+	.irq_5 (),
+	.irq_6 (),
+	.irq_7 (),
+
+	.ser_tx ( SERIAL_TX ),
+	.ser_rx ( SERIAL_RX ),
+
+	.flash_csb (),
+	.flash_clk (),
+
+	.flash_io0_oe (),
+	.flash_io1_oe (),
+	.flash_io2_oe (),
+	.flash_io3_oe (),
+
+	.flash_io0_do (),
+	.flash_io1_do (),
+	.flash_io2_do (),
+	.flash_io3_do (),
+
+	.flash_io0_di (),
+	.flash_io1_di (),
+	.flash_io2_di (),
+	.flash_io3_di ()
+);
 
 
 endmodule
