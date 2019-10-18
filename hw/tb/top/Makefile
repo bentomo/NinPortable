@@ -25,24 +25,23 @@ top_sim_hello: np_demo_tb.vvp $(MAINFW)/np_fw.hex
 np_demo_tb.vvp: $(TESTBENCH) $(TOP_WRAPPER) $(PICOSOC) $(PICORV32) $(UART) $(NV_MEM)
 	iverilog -s testbench -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
 
-np_sections.lds: $(MAINFW)/sections.lds
-	$(TOOLCHAIN_PREFIX)cpp -P -DSOCDEMO -o $@ $^
-
-np_fw.hex: $(MAINFW)/np_fw.elf
+np_fw.hex: np_fw.bin
 	$(TOOLCHAIN_PREFIX)objcopy -O verilog $(MAINFW)/np_fw.elf $(MAINFW)/np_fw.hex
 
-np_fw.bin: $(MAINFW)/np_fw.elf
+np_fw.bin: np_fw.elf
 	$(TOOLCHAIN_PREFIX)objcopy -O binary $(MAINFW)/np_fw.elf $(MAINFW)/np_fw.bin
 
-np_fw.elf: $(MAINFW)/np_sections.lds $(MAINFW)/start.s $(MAINFW)/firmware.c
+np_fw.elf: np_sections.lds $(MAINFW)/start.s $(MAINFW)/firmware.c
 	$(TOOLCHAIN_PREFIX)gcc -DSOCDEMO -march=rv32imc -Wl,-Bstatic,-T,$(MAINFW)/np_sections.lds,--strip-debug -ffreestanding -nostdlib -o $(MAINFW)/np_fw.elf $(MAINFW)/start.s $(MAINFW)/firmware.c
+
+np_sections.lds: $(MAINFW)/sections.lds
+	$(TOOLCHAIN_PREFIX)cpp -P -DSOCDEMO -o $(MAINFW)/$@ $^
 
 clean:
 	rm -f testbench.vvp testbench.vcd spiflash_tb.vvp spiflash_tb.vcd
-	rm -f $(MAINFW)/np_fw.elf $(MAINFW)/np_fw.hex $(MAINFW)/np_fw.bin
-	rm -f np_sections.lds
-	rm -vrf $(MAINFW)/firmware.elf $(MAINFW)/firmware.bin $(MAINFW)firmware.hex $(MAINFW)firmware.map
+	rm -f $(MAINFW)/np_fw.elf $(MAINFW)/np_fw.hex $(MAINFW)/np_fw.bin $(MAINFW)/np_sections.lds
 	rm -vrf *.vvp *.vcd *.trace
 	rm -vrf testbench_verilator testbench_verilator_dir
 
-.PHONY: top_sim_hello clean
+#Files are located in another directory so almost all rules are phony
+.PHONY: top_sim_hello np_fw.bin np_fw.elf np_sections.lds clean

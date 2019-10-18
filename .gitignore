@@ -9,3 +9,8 @@
 /build/*.trace
 /build/testbench_verilator*
 /doc/.*
+
+/fw/main/*.bin
+/fw/main/*.elf
+/fw/main/*.hex
+/fw/main/np_*.lds

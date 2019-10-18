@@ -669,6 +669,9 @@ void main()
 	reg_uart_clkdiv = 104;
 	print("Booting..\n");
 
+	print("Hello World!\n");
+
+
 	reg_leds = 63;
 	set_flash_qspi_flag();
 
