@@ -11,19 +11,19 @@ PICORV32_PATH = $(GIT_PATH)/../picorv32
 PICORV32 = $(PICORV32_PATH)/picorv32.v
 PICOSOC = $(PICORV32_PATH)/picosoc/picosoc.v
 UART = $(PICORV32_PATH)/picosoc/simpleuart.v
-NV_MEM = $(PICORV32_PATH)/picosoc/spiflash.v
+NV_MEM = $(PICORV32_PATH)/picosoc/spiflash.v $(PICORV32_PATH)/picosoc/spimemio.v
 
 TOP_WRAPPER = $(GIT_PATH)/hw/top/np_top.v
 
-TESTBENCH = $(GIT_PATH)/hw/tb/np_top_tb.v
+TESTBENCH = $(GIT_PATH)/hw/tb/top/np_top_tb.v
 TESTBENCHVERI= $(GIT_PATH)/hw/tb/top/testbench.cc
 MAINFW = $(GIT_PATH)/fw/main
 
-top_sim_hello: np_demo_tb.vvp $(MAINFW)/np_fw.hex
+np_top_sim: np_demo_tb.vvp np_fw.hex
 	vvp -N $< +firmware=$(MAINFW)/np_fw.hex
 
 np_demo_tb.vvp: $(TESTBENCH) $(TOP_WRAPPER) $(PICOSOC) $(PICORV32) $(UART) $(NV_MEM)
-	iverilog -s testbench -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
+	iverilog -s np_top_tb -Wimplicit -Wportbind -Wno-timescale -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
 
 np_fw.hex: np_fw.bin
 	$(TOOLCHAIN_PREFIX)objcopy -O verilog $(MAINFW)/np_fw.elf $(MAINFW)/np_fw.hex
@@ -38,10 +38,10 @@ np_sections.lds: $(MAINFW)/sections.lds
 	$(TOOLCHAIN_PREFIX)cpp -P -DSOCDEMO -o $(MAINFW)/$@ $^
 
 clean:
-	rm -f testbench.vvp testbench.vcd spiflash_tb.vvp spiflash_tb.vcd
+	rm -f *.vvp *.vcd
 	rm -f $(MAINFW)/np_fw.elf $(MAINFW)/np_fw.hex $(MAINFW)/np_fw.bin $(MAINFW)/np_sections.lds
 	rm -vrf *.vvp *.vcd *.trace
 	rm -vrf testbench_verilator testbench_verilator_dir
 
 #Files are located in another directory so almost all rules are phony
-.PHONY: top_sim_hello np_fw.bin np_fw.elf np_sections.lds clean
+.PHONY: top_sim_hello np_demo_tb.vvp np_fw.hex np_fw.bin np_fw.elf np_sections.lds clean

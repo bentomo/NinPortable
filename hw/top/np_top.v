@@ -26,11 +26,12 @@ IN THE SOFTWARE.
 
 */
 
+`default_nettype none
 `timescale 1 ns / 1 ps
 
 module np_top (
-	input wire CLK,
-	input wire RST,
+	input wire [0:0] CLK,
+	input wire [0:0] RST, //active low at top level to gpio pin
 
 	output [7:0] LED,
 
@@ -41,18 +42,21 @@ module np_top (
 	inout  FLASH_IO2,
 	inout  FLASH_IO3,
 
-	input wire SERIAL_RX,
-	output reg SERIAL_TX
+	input wire  [0:0] SERIAL_RX,
+	output wire [0:0] SERIAL_TX
 
 	);
 
 	wire core_clock;
-	assign core_clock <= CLK;
+	assign core_clock = CLK;
 
-	//self reset
-	reg [7:0] reset_counter;
+	//self reset currently set to 128 cycles
+	//Note! Self reset care must be taken so there is enough time for
+	//other components to initialize
+	reg [7:0] reset_counter = 8'h00;
+	wire reset_core;
 	assign reset_core = ~reset_counter[7];
-	`define RESET_TIME 'b100
+	`define RESET_TIME 8'd128
 	always @ (posedge core_clock) begin
 	    if (RST == 0) begin
 	        reset_counter <= 0;
@@ -73,7 +77,7 @@ module np_top (
 	wire [31:0] iomem_wdata;
 	reg  [31:0] iomem_rdata;
 
-	wire cpu_reset; assign cpu_reset ~= reset_core;
+	wire cpu_reset; assign cpu_reset = ~reset_core;
 	wire flash_io0_oe, flash_io0_do, flash_io0_di;
 	wire flash_io1_oe, flash_io1_do, flash_io1_di;
 	wire flash_io2_oe, flash_io2_do, flash_io2_di;
@@ -81,10 +85,10 @@ module np_top (
 
 	//******************************gpio controller****************************
 		reg [31:0] gpio;
-		assign leds = gpio;
+		assign LED = gpio;
 
-		always @(posedge clk) begin
-			if (core_reset) begin
+		always @(posedge core_clock) begin
+			if (reset_core) begin
 				gpio <= 0;
 			end else begin
 				iomem_ready <= 0;
@@ -152,5 +156,5 @@ module np_top (
 
 //**************************PICOSOC soft cpu*******************************
 
-
 endmodule
+`default_nettype wire

@@ -10,7 +10,10 @@
 /build/testbench_verilator*
 /doc/.*
 
+#Main code build
 /fw/main/*.bin
 /fw/main/*.elf
 /fw/main/*.hex
 /fw/main/np_*.lds
+/hw/tb/top/*.vvp
+/hw/tb/top/*.vcd

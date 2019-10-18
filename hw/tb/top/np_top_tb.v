@@ -19,6 +19,7 @@
  *
  */
 
+`default_nettype none
 `timescale 1 ns / 1 ps
 
 module np_top_tb;
@@ -29,8 +30,8 @@ module np_top_tb;
 	event ser_sample;
 
 	initial begin
-		$dumpfile("testbench.vcd");
-		$dumpvars(0, testbench);
+		$dumpfile("np_top_tb.vcd");
+		$dumpvars(0, np_top_tb);
 
 		repeat (6) begin
 			repeat (50000) @(posedge clk);
@@ -62,16 +63,17 @@ module np_top_tb;
 	end
 
 	np_top DUT (
-		.clk      (clk      ),
-		.leds     (leds     ),
-		.ser_rx   (ser_rx   ),
-		.ser_tx   (ser_tx   ),
-		.flash_csb(flash_csb),
-		.flash_clk(flash_clk),
-		.flash_io0(flash_io0),
-		.flash_io1(flash_io1),
-		.flash_io2(flash_io2),
-		.flash_io3(flash_io3)
+		.CLK       (clk      ),
+		.RST 	   (1'b1     ),
+		.LED       (leds     ),
+		.SERIAL_RX (ser_rx   ),
+		.SERIAL_TX (ser_tx   ),
+		.FLASH_CSB (flash_csb),
+		.FLASH_CLK (flash_clk),
+		.FLASH_IO0 (flash_io0),
+		.FLASH_IO1 (flash_io1),
+		.FLASH_IO2 (flash_io2),
+		.FLASH_IO3 (flash_io3)
 	);
 
 	spiflash spiflash_model (
@@ -108,3 +110,4 @@ module np_top_tb;
 			$display("Serial data: '%c'", buffer);
 	end
 endmodule
+`default_nettype wire

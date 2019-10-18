@@ -91,7 +91,7 @@ verifyUART: $(UART_RTL_RECIPE) $(UART_TESTBENCHVERI) $(UART_TESTBENCH)
 ###############################################################################
 
 #This section builds the top level wrapper firmware and test
-top_sim_hello:
+np_top_sim:
 	$(MAKE) -C ../hw/tb/top/ $@
 
 ###############################################################################
@@ -146,7 +146,7 @@ clean:
 	rm -vrf ../fw/firmware.elf ../fw/firmware.bin ../fw/firmware.hex ../fw/firmware.map
 	rm -vrf *.vvp *.vcd *.trace
 	rm -vrf testbench_verilator testbench_verilator_dir
-	#sudo bash -c 'rm -r $(PICORV32_PATH)'
+	$(MAKE) -C ../hw/tb/top/ $@
 
 .PHONY: download clean
 .PHONY: picosoc_sim top_sim_hello
