@@ -19,26 +19,26 @@ The required rv32 tool chain needs to be downloaded and installed
 	make download-tools
 	make -j$(nproc) build-tools
 
+	Yosys is currently required for a few tests, the build does not
+	currently have a target FPGA. It will most likely be ECP5 but
+	yosys does not yet support ECP5, it will ver soon.
+
+	Testing is done with yosys https://github.com/YosysHQ/yosys at
+	2daa56859f51631992cc172ccddad55e741b0c3d
 
 ## Test
 ---------------------------------------
-You can run a simple test with iverilog and verilator
+You can run the main code test from the build directory
+This calls a sub-make in the hw/tb/top directory
 
-	make test
-
-	make test_verilator
+	cd build
+	make test_top_hello
 
 The test flow uses a mix of iverilog and verilator
-For each test functional block or piece of logic there is an associated 
-
-1. testbench.v logic wrapper 
-2. testbench.cpp verilator software
-3. testbench.c riscv firmware (if applicable)
+Verilator is used when the sim needs to be sped up for firmware tests
 
 Most designs will include a riscv softcore so the associated firmware for the
-test will be included as well. All tb fw code can be run on real hardware
-
-Verilator is mostly used to drive the clock and reset and speed up sim
+test will be located in the fw/tb directory
 
 ## Make options
 ---
@@ -48,20 +48,6 @@ The project is very large so we will attempt to manage it with make
 ### buildFPGA
 ---
 This builds the bit stream and firmware to be loaded on to the FPGA
-
-### Verification options
----
-When features and functions are added they are given a rule in make to verify function in some way. When they are added there is a master verfication rule that will verify all sub-verification steps.
-You can run the following make rules from the top level directory of git
-
-#### verify
----
-This rule verifies all following verification rules
-
-#### verifyUART
----
-This rule instances two top_np designs that will send messages to eachother over a serial wire
-
 
 ## Overview
 ---

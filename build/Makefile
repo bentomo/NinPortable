@@ -1,9 +1,7 @@
 #Make file for project management
 
-
 TOP_WRAPPER = ../hw/top/top_np.v
 TB_PATH = ../hw/tb
-
 
 PICORV32_PATH = ../../picorv32
 RISCV_GNU_TOOLCHAIN_GIT_REVISION = c3ad555
@@ -89,6 +87,16 @@ verifyUART: $(UART_RTL_RECIPE) $(UART_TESTBENCHVERI) $(UART_TESTBENCH)
 ###############################################################################
 
 ###############################################################################
+# Firmware Verification Section
+###############################################################################
+
+#This section builds the top level wrapper firmware and test
+top_sim_hello:
+	$(MAKE) -C ../hw/tb/top/ $@
+
+###############################################################################
+
+###############################################################################
 # Picosoc test section
 ###############################################################################
 
@@ -141,4 +149,4 @@ clean:
 	#sudo bash -c 'rm -r $(PICORV32_PATH)'
 
 .PHONY: download clean
-.PHONY: picosoc_sim
+.PHONY: picosoc_sim top_sim_hello
