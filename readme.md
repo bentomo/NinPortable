@@ -32,7 +32,12 @@ You can run the main code test from the build directory
 This calls a sub-make in the hw/tb/top directory
 
 	cd build
-	make test_top_hello
+	make np_top_sim
+
+Or run with verilator
+
+	cd build
+	make np_top_sim_verilator
 
 The test flow uses a mix of iverilog and verilator
 Verilator is used when the sim needs to be sped up for firmware tests

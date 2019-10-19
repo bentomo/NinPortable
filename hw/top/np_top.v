@@ -33,14 +33,14 @@ module np_top (
 	input wire [0:0] CLK,
 	input wire [0:0] RST, //active low at top level to gpio pin
 
-	output [7:0] LED,
+	output wire [7:0] LED,
 
-	output FLASH_CSB,
-	output FLASH_CLK,
-	inout  FLASH_IO0,
-	inout  FLASH_IO1,
-	inout  FLASH_IO2,
-	inout  FLASH_IO3,
+	output wire FLASH_CSB,
+	output wire FLASH_CLK,
+	inout  wire FLASH_IO0,
+	inout  wire FLASH_IO1,
+	inout  wire FLASH_IO2,
+	inout  wire FLASH_IO3,
 
 	input wire  [0:0] SERIAL_RX,
 	output wire [0:0] SERIAL_TX
@@ -143,16 +143,25 @@ module np_top (
 	);
 
 	//Tri state buffer for flash IO.
-	SB_IO #(
-		.PIN_TYPE(6'b 1010_01),
-		.PULLUP(1'b 0)
-	) flash_io_buf [3:0] (
-		.PACKAGE_PIN({FLASH_IO3, FLASH_IO2, FLASH_IO1, FLASH_IO0}),
-		.OUTPUT_ENABLE({flash_io3_oe, flash_io2_oe, flash_io1_oe, 
-			flash_io0_oe}),
-		.D_OUT_0({flash_io3_do, flash_io2_do, flash_io1_do, flash_io0_do}),
-		.D_IN_0({flash_io3_di, flash_io2_di, flash_io1_di, flash_io0_di})
-	);
+	assign FLASH_IO3 = (flash_io3_oe) ? flash_io3_do : 1'bz;
+	assign flash_io3_di = FLASH_IO3;
+	assign FLASH_IO2 = (flash_io2_oe) ? flash_io2_do : 1'bz;
+	assign flash_io2_di = FLASH_IO2;
+	assign FLASH_IO1 = (flash_io1_oe) ? flash_io1_do : 1'bz;
+	assign flash_io1_di = FLASH_IO1;
+	assign FLASH_IO0 = (flash_io0_oe) ? flash_io0_do : 1'bz;
+	assign flash_io0_di = FLASH_IO0;
+
+	// SB_IO #(
+	// 	.PIN_TYPE(6'b 1010_01),
+	// 	.PULLUP(1'b 0)
+	// ) flash_io_buf [3:0] (
+	// 	.PACKAGE_PIN({FLASH_IO3, FLASH_IO2, FLASH_IO1, FLASH_IO0}),
+	// 	.OUTPUT_ENABLE({flash_io3_oe, flash_io2_oe, flash_io1_oe, 
+	// 		flash_io0_oe}),
+	// 	.D_OUT_0({flash_io3_do, flash_io2_do, flash_io1_do, flash_io0_do}),
+	// 	.D_IN_0({flash_io3_di, flash_io2_di, flash_io1_di, flash_io0_di})
+	// );
 
 //**************************PICOSOC soft cpu*******************************
 

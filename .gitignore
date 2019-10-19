@@ -17,3 +17,5 @@
 /fw/main/np_*.lds
 /hw/tb/top/*.vvp
 /hw/tb/top/*.vcd
+/hw/tb/top/np_top_tb_verilator*
+/hw/tb/top/tb_verilator*

@@ -22,7 +22,9 @@
 `default_nettype none
 `timescale 1 ns / 1 ps
 
-module np_top_tb;
+`ifndef VERILATOR
+module np_top_tb ();
+
 	reg clk;
 	always #5 clk = (clk === 1'b0);
 
@@ -46,10 +48,29 @@ module np_top_tb;
 		cycle_cnt <= cycle_cnt + 1;
 	end
 
-	wire [7:0] leds;
-
 	wire ser_rx;
 	wire ser_tx;
+
+`else
+
+module np_top_tb (
+		input wire [0:0] CLK,
+		input wire [0:0] RST,
+
+		input wire  [0:0] SERIAL_RX,
+		output wire [0:0] SERIAL_TX
+	);
+
+	wire clk;
+	assign clk = CLK;
+
+	wire ser_rx; assign ser_rx = SERIAL_RX;
+	wire ser_tx; assign SERIAL_TX = ser_tx;
+
+
+`endif
+
+	wire [7:0] leds;
 
 	wire flash_csb;
 	wire flash_clk;
@@ -57,10 +78,16 @@ module np_top_tb;
 	wire flash_io1;
 	wire flash_io2;
 	wire flash_io3;
+	//pullup(flash_io0);
+	//pullup(flash_io1);
+	//pullup(flash_io2);
+	//pullup(flash_io3);
 
+`ifndef VERILATOR
 	always @(leds) begin
 		#1 $display("%b", leds);
 	end
+`endif
 
 	np_top DUT (
 		.CLK       (clk      ),
@@ -85,6 +112,7 @@ module np_top_tb;
 		.io3(flash_io3)
 	);
 
+`ifndef VERILATOR
 	reg [7:0] buffer;
 
 	always begin
@@ -109,5 +137,7 @@ module np_top_tb;
 		else
 			$display("Serial data: '%c'", buffer);
 	end
+`endif
+
 endmodule
 `default_nettype wire

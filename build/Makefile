@@ -91,41 +91,15 @@ verifyUART: $(UART_RTL_RECIPE) $(UART_TESTBENCHVERI) $(UART_TESTBENCH)
 ###############################################################################
 
 #This section builds the top level wrapper firmware and test
+
+#rule for testing everything to make sure nothing breaks
+np_top_all: np_top_sim np_top_sim_verilator
+
 np_top_sim:
 	$(MAKE) -C ../hw/tb/top/ $@
 
-###############################################################################
-
-###############################################################################
-# Picosoc test section
-###############################################################################
-
-#-----------may want to move this section into sub Make file in soc tb -----
-picosoc_sim: picosoc_demo_tb.vvp $(SOC_TBFW)/socdemo_fw.hex
-	vvp -N $< +firmware=$(SOC_TBFW)/socdemo_fw.hex
-
-picosoc_demo_tb.vvp: $(TB_PATH)/soc/picosoc_demo_tb.v $(TB_PATH)/soc/picosoc_demo.v $(PICOSOC) $(PICORV32) $(UTILITY_PERIPH)
-	iverilog -s testbench -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
-
-picosoc_sections.lds: $(SOC_TBFW)/sections.lds
-	$(TOOLCHAIN_PREFIX)cpp -P -DSOCDEMO -o $@ $^
-
-socdemo_fw.hex: $(SOC_TBFW)/socdemo_fw.elf
-	$(TOOLCHAIN_PREFIX)objcopy -O verilog $(SOC_TBFW)/socdemo_fw.elf $(SOC_TBFW)/socdemo_fw.hex
-
-socdemo_fw.bin: $(SOC_TBFW)/socdemo_fw.elf
-	$(TOOLCHAIN_PREFIX)objcopy -O binary $(SOC_TBFW)/socdemo_fw.elf $(SOC_TBFW)/socdemo_fw.bin
-
-socdemo_fw.elf: $(SOC_TBFW)/socdemo_sections.lds $(SOC_TBFW)/start.s $(SOC_TBFW)/firmware.c
-	$(TOOLCHAIN_PREFIX)gcc -DSOCDEMO -march=rv32imc -Wl,-Bstatic,-T,$(SOC_TBFW)/socdemo_sections.lds,--strip-debug -ffreestanding -nostdlib -o $(SOC_TBFW)/socdemo_fw.elf $(SOC_TBFW)/start.s $(SOC_TBFW)/firmware.c
-
-# ---- Testbench for SPI Flash Model ----
-
-spiflash_tb: spiflash_tb.vvp firmware.hex
-	vvp -N $<
-
-spiflash_tb.vvp: spiflash.v spiflash_tb.v
-	iverilog -s testbench -o $@ $^
+np_top_sim_verilator:
+	$(MAKE) -C ../hw/tb/top/ $@
 
 ###############################################################################
 
@@ -141,12 +115,10 @@ buildFPGAbitstream: $(BUILD_FPGA_RTL_RECIPE)
 clean:
 	rm -vrf $(FIRMWARE_OBJS)
 	rm -f testbench.vvp testbench.vcd spiflash_tb.vvp spiflash_tb.vcd
-	rm -f $(SOC_TBFW)/socdemo_fw.elf $(SOC_TBFW)/socdemo_fw.hex $(SOC_TBFW)/socdemo_fw.bin
-	rm -f picosoc_sections.lds
 	rm -vrf ../fw/firmware.elf ../fw/firmware.bin ../fw/firmware.hex ../fw/firmware.map
 	rm -vrf *.vvp *.vcd *.trace
 	rm -vrf testbench_verilator testbench_verilator_dir
 	$(MAKE) -C ../hw/tb/top/ $@
 
 .PHONY: download clean
-.PHONY: picosoc_sim top_sim_hello
+.PHONY: np_top_all np_top_sim np_top_sim_verilator
