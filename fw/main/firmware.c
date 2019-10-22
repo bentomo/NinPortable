@@ -666,7 +666,7 @@ void cmd_echo()
 void main()
 {
 	reg_leds = 31;
-	reg_uart_clkdiv = 104;
+	reg_uart_clkdiv = 868; //This is how many master clock ticks 1 serial bit is
 	print("Booting..\n");
 
 	print("Hello World!\n");

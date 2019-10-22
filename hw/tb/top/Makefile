@@ -6,14 +6,18 @@ GCC_WARNS += -Wredundant-decls -Wstrict-prototypes -Wmissing-prototypes -pedanti
 TOOLCHAIN_PREFIX = $(RISCV_GNU_TOOLCHAIN_INSTALL_PREFIX)i/bin/riscv32-unknown-elf-
 COMPRESSED_ISA = C
 
-#Get this path using "yosys-config --datdir/ice40/cells_sim.v" on the command line
-#SB_IO = /usr/local/share/yosys/ice40/cells_sim.v
+#Verilator arguments
+VERILATOR_ROOT ?= $(shell bash -c 'verilator -V|grep VERILATOR_ROOT | head -1 | sed -e " s/^.*=\s*//"')
+CXX	:= g++
+FLAGS	:= -Wall -Og -g
+INCS	:= -Itb_verilator_dir -I$(VERILATOR_ROOT)/include
 
 GIT_PATH = ../../..
 PICORV32_PATH = $(GIT_PATH)/../picorv32
 PICORV32 = $(PICORV32_PATH)/picorv32.v
 PICOSOC = $(PICORV32_PATH)/picosoc/picosoc.v
 UART = $(PICORV32_PATH)/picosoc/simpleuart.v
+UARTSIM = $(GIT_PATH)/../wbuart32/bench/cpp/
 NV_MEM = $(GIT_PATH)/hw/tb/spiflash/spiflash.v $(GIT_PATH)/hw/tb/spiflash/spimemio.v
 
 TOP_WRAPPER = $(GIT_PATH)/hw/top/np_top.v
@@ -35,6 +39,8 @@ np_top_tb_verilator: $(TESTBENCH) $(PICORV32) $(TOP_WRAPPER) $(PICOSOC) $(TESTBE
 	verilator --cc --exe -Wno-lint -trace --top-module np_top_tb $(TESTBENCH) $(TOP_WRAPPER) $(PICOSOC) $(PICORV32) $(TESTBENCHVERI) $(UART) $(NV_MEM) \
 			$(subst C,-DCOMPRESSED_ISA,$(COMPRESSED_ISA)) --Mdir tb_verilator_dir
 	$(MAKE) -C tb_verilator_dir -f Vnp_top_tb.mk
+	#might want to break this step out into a seperate verilator compile
+	#$(CXX) $(FLAGS) $(INCS) $(TESTBENCHVERI) tb_verilator_dir/Vnp_top_tb__ALL.a -o $@
 	cp tb_verilator_dir/Vnp_top_tb np_top_tb_verilator
 
 np_demo_tb.vvp: $(TESTBENCH) $(TOP_WRAPPER) $(PICOSOC) $(PICORV32) $(UART) $(NV_MEM)

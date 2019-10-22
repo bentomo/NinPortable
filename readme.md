@@ -11,6 +11,9 @@ The required repositories will be cloned into the same directory as the NinPorta
 	cd build
 	make setup
 
+	Need to add verilator build
+	Need to add wbuart32 download
+
 
 #### Build the toolchain
 The required rv32 tool chain needs to be downloaded and installed

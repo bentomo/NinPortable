@@ -71,6 +71,7 @@ module np_top_tb (
 `endif
 
 	wire [7:0] leds;
+	reg [7:0] led_d;
 
 	wire flash_csb;
 	wire flash_clk;
@@ -83,11 +84,15 @@ module np_top_tb (
 	//pullup(flash_io2);
 	//pullup(flash_io3);
 
-`ifndef VERILATOR
-	always @(leds) begin
-		#1 $display("%b", leds);
+	always @(posedge clk) begin
+		led_d <= leds;
 	end
-`endif
+
+	always @(leds) begin
+		if (led_d != leds) begin
+			$display("%b", leds);
+		end
+	end
 
 	np_top DUT (
 		.CLK       (clk      ),
